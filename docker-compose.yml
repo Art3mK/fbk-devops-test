@@ -1,0 +1,35 @@
+version: '3'
+services:
+  db:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=messages
+    volumes:
+      - "postgre_data:/var/lib/postgresql/data"
+    networks:
+      - db
+  flaskapp:
+    build: .
+    networks:
+      - db
+      - web
+    depends_on:
+      - db
+  nginx:
+    image: "nginx:latest"
+    ports:
+      - "8080:80"
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d
+    networks:
+      - web
+    depends_on:
+      - flaskapp
+networks:
+  db:
+    driver: bridge
+  web:
+    driver: bridge
+volumes:
+  postgre_data:
